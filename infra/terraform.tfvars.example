@@ -1,0 +1,15 @@
+# Copy to terraform.tfvars and change only the values you need.
+# terraform.tfvars is gitignored.
+
+aws_region  = "us-east-1"
+environment = "dev"
+
+# Optional. When empty, short_url is derived from the API Gateway domain.
+# public_base_url = "https://abc123.execute-api.us-east-1.amazonaws.com"
+
+# Optional browser allow-list. Non-browser clients are unaffected.
+# allowed_origins = ["https://your-frontend.example"]
+
+# enable_alarms = true
+# alarm_sns_topic_arn = "arn:aws:sns:us-east-1:123456789012:shortlink-alarms"
+# protect_table = true

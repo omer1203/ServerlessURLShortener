@@ -1,24 +1,9 @@
-# Terraform Backend Configuration Example
-# Copy this file to backend.tfvars and update with your values
+# Example remote-state settings
 
-# S3 bucket for storing Terraform state
-bucket = "your-terraform-state-bucket"
+Copy `backend.hcl.example` to `backend.hcl` and pass it to Terraform:
 
-# Path to the state file within the bucket
-key = "urlshortener/terraform.tfstate"
+```bash
+terraform -chdir=infra init -backend-config=backend.hcl
+```
 
-# AWS region
-region = "us-east-1"
-
-# Enable encryption at rest
-encrypt = true
-
-# DynamoDB table for state locking (prevents concurrent modifications)
-dynamodb_table = "terraform-state-lock"
-
-# Instructions:
-# 1. Create an S3 bucket for storing Terraform state
-# 2. Create a DynamoDB table with partition key "LockID" (String)
-# 3. Copy this file to backend.tfvars
-# 4. Update the values above
-# 5. Run: terraform init -backend-config=backend.tfvars
+`backend.hcl` is gitignored. State locking uses S3 lock files (`use_lockfile`), which needs Terraform 1.10 or newer. See `docs/DEPLOYMENT.md`.

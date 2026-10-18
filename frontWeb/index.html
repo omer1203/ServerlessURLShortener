@@ -1,364 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>URL Shortener - Make Your Links Shorter</title>
-    <!-- Minor meta tweak for recruiters: descriptive page -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-        }
-
-        .logo {
-            margin-bottom: 30px;
-        }
-
-        .logo i {
-            font-size: 3rem;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            color: #2d3748;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            color: #718096;
-            font-size: 1rem;
-            margin-bottom: 40px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            color: #4a5568;
-            font-weight: 500;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-
-        .input-container {
-            position: relative;
-        }
-
-        input[type="url"] {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: #fff;
-        }
-
-        input[type="url"]:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        input[type="url"]:invalid {
-            border-color: #e53e3e;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn i {
-            margin-right: 8px;
-        }
-
-        .status {
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 12px;
-            font-weight: 500;
-            min-height: 20px;
-        }
-
-        .status.success {
-            background: #f0fff4;
-            color: #22543d;
-            border: 1px solid #9ae6b4;
-        }
-
-        .status.error {
-            background: #fed7d7;
-            color: #742a2a;
-            border: 1px solid #feb2b2;
-        }
-
-        .status.info {
-            background: #ebf8ff;
-            color: #2a4365;
-            border: 1px solid #90cdf4;
-        }
-
-        .result {
-            background: #f7fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .result.show {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .result-label {
-            color: #4a5568;
-            font-size: 0.9rem;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .short-link {
-            display: flex;
-            align-items: center;
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 12px 15px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .short-link:hover {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .short-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 700;
-            flex: 1;
-            text-align: left;
-            font-size: 1.1rem;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 1px;
-        }
-
-        .short-link a:hover {
-            color: #5a67d8;
-            text-decoration: underline;
-        }
-
-        .copy-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
-        }
-
-        .copy-btn:hover {
-            background: #5a67d8;
-        }
-
-        .copy-btn.copied {
-            background: #38a169;
-        }
-
-        .destination-url {
-            color: #718096;
-            font-size: 0.9rem;
-            background: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            word-break: break-all;
-        }
-
-        .features {
-            margin-top: 40px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .feature {
-            text-align: center;
-            padding: 15px;
-            background: rgba(102, 126, 234, 0.1);
-            border-radius: 12px;
-        }
-
-        .feature i {
-            font-size: 1.5rem;
-            color: #667eea;
-            margin-bottom: 8px;
-        }
-
-        .feature-text {
-            font-size: 0.8rem;
-            color: #4a5568;
-            font-weight: 500;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 30px 20px;
-                margin: 10px;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            .features {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 15px;
-            }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Create a short public link that redirects with HTTP 302.">
+  <meta name="color-scheme" content="light dark">
+  <title>Shortlink</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%238a3b12'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600&family=IBM+Plex+Serif:ital,wght@0,500;0,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./config.js"></script>
 </head>
-
 <body>
-    <div class="container">
-        <div class="logo">
-            <i class="fas fa-link"></i>
-        </div>
-        
-        <h1>URL Shortener</h1>
-        <p class="subtitle">Transform long URLs into short, shareable links</p>
-
-        <form id="shortenForm">
-            <div class="form-group">
-                <label for="longURL">Enter your long URL</label>
-                <div class="input-container">
-                    <input 
-                        id="longURL"
-                        type="url" 
-                        placeholder="https://example.com/very/long/url"
-                        required
-                    />
-                </div>
-            </div>
-            
-            <button type="submit" id="submitBtn" class="btn">
-                <i class="fas fa-compress-alt"></i>
-                <span class="btn-text">Shorten URL</span>
-            </button>
-        </form>
-
-        <div id="status" class="status" aria-live="polite"></div>
-
-        <div id="result" class="result">
-            <div class="result-label">Your Short Link:</div>
-            <div class="short-link">
-                <a id="shortLink" href="#" target="_blank" rel="noopener"></a>
-                <button id="copyBtn" class="copy-btn">
-                    <i class="fas fa-copy"></i>
-                </button>
-            </div>
-            <div class="destination-url" id="destinationUrl"></div>
-        </div>
-
-        <div class="features">
-            <div class="feature">
-                <i class="fas fa-bolt"></i>
-                <div class="feature-text">Fast</div>
-            </div>
-            <div class="feature">
-                <i class="fas fa-shield-alt"></i>
-                <div class="feature-text">Secure</div>
-            </div>
-            <div class="feature">
-                <i class="fas fa-chart-line"></i>
-                <div class="feature-text">Analytics</div>
-            </div>
-        </div>
+  <a class="skip" href="#shorten-form">Skip to the shortener</a>
+  <header>
+    <div class="shell bar">
+      <a class="wordmark" href="./">
+        <span class="mark" aria-hidden="true"></span>
+        Shortlink
+      </a>
+      <p class="bar-note">Public redirects</p>
     </div>
+  </header>
+  <main class="shell">
+    <h1>Shorten a link.</h1>
+    <p class="lede">Paste an http or https address. Short links redirect with HTTP 302.</p>
 
-    <script src="./app.js"></script>
+    <form id="shorten-form" novalidate>
+      <div class="field">
+        <label for="long-url">Long URL</label>
+        <div class="composer">
+          <input
+            id="long-url"
+            name="long_url"
+            type="text"
+            inputmode="url"
+            autocomplete="url"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            placeholder="https://"
+            aria-describedby="url-error"
+            autofocus
+            required
+          >
+          <button type="submit" id="submit-button">Shorten</button>
+        </div>
+        <p id="url-error" class="field-error" hidden></p>
+      </div>
+      <div class="field expiry-field">
+        <label for="expiry">Expiration</label>
+        <div class="select-wrap">
+          <select id="expiry" name="expires_in_days">
+            <option value="">Does not expire</option>
+            <option value="1">1 day</option>
+            <option value="7">7 days</option>
+            <option value="30">30 days</option>
+          </select>
+        </div>
+      </div>
+    </form>
+
+    <p id="status" class="status" role="status"></p>
+
+    <section id="result" class="result" hidden>
+      <h2 id="result-title" tabindex="-1">Short link</h2>
+      <p id="short-url" class="short-url"></p>
+      <div class="actions">
+        <button type="button" id="copy-button">Copy</button>
+        <a id="open-link" href="" target="_blank" rel="noopener noreferrer">Open</a>
+        <button type="button" id="again-button">Shorten another</button>
+      </div>
+      <p class="destination-label">Destination</p>
+      <p id="destination" class="destination"></p>
+      <p id="expiry-note" class="expiry-note"></p>
+    </section>
+
+    <section id="recent" class="recent" hidden>
+      <div class="recent-heading">
+        <h2>Recent on this browser</h2>
+        <button type="button" id="clear-recent" class="text-button">Clear</button>
+      </div>
+      <p class="recent-note">Saved locally in this browser. Not an account, and not synced.</p>
+      <ul id="recent-list"></ul>
+    </section>
+    <noscript>
+      <p class="noscript">JavaScript is required to create a short link.</p>
+    </noscript>
+  </main>
+  <footer>
+    <div class="shell">
+      <p>Anyone with a short link can open its destination. Don't shorten anything private.</p>
+    </div>
+  </footer>
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>

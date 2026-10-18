@@ -1,54 +1,70 @@
-name: deploy #the workflowe name on the actions tab 
+name: deploy
 
+# Deployment is manual. Pull requests never receive AWS credentials.
 on:
-  pull_request:
-    branches: ["main"] #show the terraform plan on main
-  push:
-    branches: ["main"] #auto apply direct puishes to main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: plan previews changes. apply updates AWS.
+        type: choice
+        options:
+          - plan
+          - apply
+        default: plan
 
-permissions: 
-  id-token: write #this is requires as it lets this workflow req on oidc token
-  contents: read #this is required to read the contents of the repository
+permissions:
+  contents: read
+  id-token: write
 
-env: 
-  AWS_REGION: us-east-1 
+concurrency:
+  group: shortlink-deploy
+  cancel-in-progress: false
 
-jobs: 
-  terraform: 
+jobs:
+  terraform:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
 
-    defaults: 
-      run: 
-        working-directory: infra #since .tf files are under infra, set it as the working directory
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
 
-    steps: 
-      - name: Checkout repository
-        uses: actions/checkout@v4 #this will pull the repo inside the runner
+      - uses: hashicorp/setup-terraform@v3
 
-      - name: Configure AWS Credentials via OIDC # YOUR_ACCOUNT_ID placeholder below
-        uses: aws-actions/configure-aws-credentials@v4 
-        with: 
-          role-to-assume: arn:aws:iam::YOUR_ACCOUNT_ID:role/github-actions-terraform
-          aws-region: us-east-1
+      - name: Configure remote state
+        run: |
+          cat > backend.tf <<'EOF'
+          terraform {
+            backend "s3" {}
+          }
+          EOF
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3 #installs terraform on the runner
-
-      - name: Terraform Init
-        # Using local backend (backend commented out in version.tf)
-        # For production: uncomment backend in version.tf and use GitHub Secrets for backend.tfvars
-        run: terraform init
+      - name: Terraform init
+        run: |
+          terraform init -input=false \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=urlshortener/terraform.tfstate" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="encrypt=true" \
+            -backend-config="use_lockfile=true"
 
       - name: Terraform fmt
-        run: terraform fmt -check -recursive #ensure check and recursive, fails if code is not formatted
+        working-directory: ${{ github.workspace }}
+        run: terraform fmt -check -recursive
 
       - name: Terraform validate
-        run: terraform validate #validates the code, catches errors
+        run: terraform validate
 
-      - name: Terraform Plan
-        if: github.event_name == 'pull_request' #only run terraform plan on pull requests
-        run: terraform plan 
+      - name: Terraform plan
+        run: terraform plan -input=false -out=tfplan
 
       - name: Terraform apply
-        if: github.event_name == 'push' #only run terraform apply on pushes to main
-        run: terraform apply -auto-approve #auto approve the plan and deploy on main
+        if: inputs.action == 'apply'
+        run: terraform apply -input=false tfplan

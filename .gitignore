@@ -47,6 +47,20 @@ __pycache__/
 *.pyc
 .venv/
 .env
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# local remote-state config
+infra/backend.tf
+infra/backend.hcl
+
+# node
+node_modules/
+
+# local documentation, not published
+docs/
 
 #just the usual IDE ignores
 .DS_Store
