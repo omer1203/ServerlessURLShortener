@@ -1,0 +1,38 @@
+#!/bin/sh
+# Stop the Shortlink server started by scripts/up.
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+PID_FILE="$ROOT/.shortlink/dev.pid"
+PORT="${PORT:-8000}"
+
+if [ ! -f "$PID_FILE" ]; then
+  echo "Shortlink is not running."
+  exit 0
+fi
+
+pid=$(tr -d '[:space:]' < "$PID_FILE")
+cmd=$(ps -p "$pid" -o command= 2>/dev/null || true)
+case "$cmd" in
+  *devserver*)
+    ;;
+  *)
+    if ! lsof -nP -iTCP:"$PORT" -sTCP:LISTEN -p "$pid" >/dev/null 2>&1; then
+      rm -f "$PID_FILE"
+      echo "Shortlink is not running."
+      exit 0
+    fi
+    ;;
+esac
+
+kill "$pid" 2>/dev/null || true
+i=0
+while kill -0 "$pid" 2>/dev/null && [ "$i" -lt 30 ]; do
+  i=$((i + 1))
+  sleep 0.1
+done
+if kill -0 "$pid" 2>/dev/null; then
+  kill -9 "$pid" 2>/dev/null || true
+fi
+rm -f "$PID_FILE"
+echo "Stopped Shortlink (pid ${pid})."

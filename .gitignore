@@ -62,6 +62,9 @@ node_modules/
 # local documentation, not published
 docs/
 
+# local dev server started by scripts/up
+.shortlink/
+
 #just the usual IDE ignores
 .DS_Store
 .vscode/

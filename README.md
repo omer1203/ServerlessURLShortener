@@ -4,6 +4,13 @@ A small public URL shortener. You submit an `http` or `https` URL and get a shor
 
 The interesting part is the request path: an HTTP API in front of two Lambda functions, a conditional DynamoDB write so codes are not overwritten, and a redirect that is an actual redirect. The same Python handlers run in Lambda and in a local server, so the tests and the UI do not need an AWS account.
 
+<table>
+  <tr>
+    <td><img src="assets/shortlink_w.png" alt="Shortlink in light mode, after creating a short URL" width="420"></td>
+    <td><img src="assets/shortlink_b.png" alt="Shortlink in dark mode, after creating a short URL" width="420"></td>
+  </tr>
+</table>
+
 There is no public deployment checked into this repository. After `terraform apply`, the API URL is the `http_api_url` output.
 
 ## Features
@@ -120,10 +127,10 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.txt
 make test
-make dev
+scripts/up
 ```
 
-Open `http://127.0.0.1:8000`. The dev server uses the Lambda handlers and an in-memory table. Restarting it drops every link. `frontWeb/config.js` leaves `apiBaseUrl` empty so the page calls the same origin. Set that value to an API Gateway URL only when the page is hosted apart from the API.
+Open `http://127.0.0.1:8000`. `scripts/down` stops that process. `make dev` runs the same server in the foreground. The dev server uses the Lambda handlers and an in-memory table. Restarting it drops every link. `frontWeb/config.js` leaves `apiBaseUrl` empty so the page calls the same origin. Set that value to an API Gateway URL only when the page is hosted apart from the API.
 
 `make lint` runs Ruff. `make validate` runs `terraform fmt` and `terraform validate` if Terraform is installed.
 
